@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sells', function (Blueprint $table) {
+        Schema::create('dailysells', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
             $table->date('date');
-            $table->string('customer')->nullable();
-            $table->integer('quantity');
-            $table->integer('price');
             $table->integer('total');
             $table->timestamps();
         });
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sells');
+        Schema::dropIfExists('daily');
     }
 };

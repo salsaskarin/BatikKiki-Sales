@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                <form method="POST" action="{{ route('simpanProduk') }}">
+                <form method="POST" action="{{ route('simpanProduk') }}" enctype="multipart/form-data">
         @csrf
 
         <!-- Name Product -->
@@ -59,7 +59,7 @@
         <!-- Image -->
         <div class="mt-4">
             <x-input-label for="image" :value="__('Upload Foto Produk')" />
-            <x-text-input id="image" class="block mt-1 w-full" type="file" accept=".jpg, .png, .jpeg" name="image" :value="old('image')" />
+          <input type="file" accept="image/*" name="image" class="form-control" >
             <x-input-error :messages="$errors->get('image')" class="mt-2" />
         </div>
 

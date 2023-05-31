@@ -29,24 +29,30 @@ class ProductController extends Controller
     return view('product.home', ['product' => $product]);
     }
 
-    public function getData()
+    public function details($id)
     {
-        // $response = Http::get('http://localhost:8000/api/treatment/index');
-        // $response = $response->object();
-        // dd($response);
-
-        // $title = 'Treatments';
-        // if (request('category')) {
-        //     $title = "Semua Treatments";
-        // }
-        // return view('admin.home', [
-        //    'title' => 'Treatments' . $title,
-        //     'active' => 'events',
-        //     'treatments' => $response->data,
-        // ]);
-        $product = Product::all();
-        return view('dashboard', ['user' => $user,'product'=>$product]);
+        $product = DB::table('product')->where('id',$id)->get();
+        return view('product.detailsProduct',['product'=>$product]);
     }
+
+    // public function getData()
+    // {
+    //     // $response = Http::get('http://localhost:8000/api/treatment/index');
+    //     // $response = $response->object();
+    //     // dd($response);
+
+    //     // $title = 'Treatments';
+    //     // if (request('category')) {
+    //     //     $title = "Semua Treatments";
+    //     // }
+    //     // return view('admin.home', [
+    //     //    'title' => 'Treatments' . $title,
+    //     //     'active' => 'events',
+    //     //     'treatments' => $response->data,
+    //     // ]);
+    //     $product = Product::all();
+    //     return view('dashboard', ['user' => $user,'product'=>$product]);
+    // }
 
     public function addProduct()
     {
@@ -63,13 +69,15 @@ class ProductController extends Controller
             'details' => 'required',
             'highest_price' => 'required',
             'lowest_price' => 'required',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // if ($request->hasfile('image')) {
-        //     $filename = round(microtime(true) * 1000).'-'.str_replace(' ','-',$request->file('image')->getClientOriginalName());
-        //     $request->file('image')->move(public_path('images/product'), $filename);
-        // }
+        if ($image = $request->file('image')) {
+            $destinationPath = 'images/product';
+            $productImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image->move($destinationPath, $productImage);
+            $input['image'] = "$productImage";
+        }
 
         Product::create([
             'name' => $request->name,
@@ -78,7 +86,7 @@ class ProductController extends Controller
             'details' => $request->details,
             'highest_price' => $request->highest_price,
             'lowest_price' => $request->lowest_price,
-            // 'image' => $filename,
+            'image' => $productImage,
         ]);
         // dd($shop);
 
@@ -92,41 +100,46 @@ class ProductController extends Controller
         return view('product.editProduct',['product'=>$product]);
 
     }
+
     public function updateProduct(Request $request)
     {
-        $product = Product::findOrFail($request->id);
+        $request->validate([
+            'name' => 'required',
+            'size' => 'required',
+            'stock' => 'required',
+            'details' => 'required',
+            'highest_price' => 'required',
+            'lowest_price' => 'required',
+        ]);
 
-        if ($request->hasfile('image')) {
-            $filename = round(microtime(true) * 1000).'-'.str_replace(' ','-',$request->file('image')->getClientOriginalName());
-            $request->file('image')->move(public_path('images/product'), $filename);
-        }
+        Product::where('id',$request->id)->update([
+            'name' => $request->name,
+            'size' => $request ->size,
+            'stock' => $request->stock,
+            'details' => $request->details,
+            'highest_price' => $request->highest_price,
+            'lowest_price' => $request->lowest_price,
+        ]);
+        if ($image = $request->file('image')) {
+            $destinationPath = 'images/product';
+            $productImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image->move($destinationPath, $productImage);
+            $input['image'] = "$productImage";
 
-        if($request->hasfile('image')){
             Product::where('id',$request->id)->update([
-                'name' => $request->name,
-                'details' => $request->details,
-                'highest_price' => $request->highest_price,
-                'lowest_price' => $request->lowest_price,
-                'stock' => $request->stock,
-                'image' => $filename,
-            ]);
-        }else{
-            Product::where('id',$request->id)->update([
-                'name' => $request->name,
-                'details' => $request->details,
-                'highest_price' => $request->highest_price,
-                'lowest_price' => $request->lowest_price,
-                'stock' => $request->stock,
+                'image' => $productImage,
             ]);
         }
-        return redirect()->to('/produk');
+        
+        return redirect()->to('/produk')
+                        ->with('success','Product created successfully.');
     }
 
-    // public function deleteStock($id)
-    // {
-    // DB::table('stock')->where('id',$id)->delete();
-    // return redirect('/home/stock');
-    // }
+    public function deleteProduct($id)
+    {
+    DB::table('product')->where('id',$id)->delete();
+    return redirect('/produk');
+    }
 
     
 }

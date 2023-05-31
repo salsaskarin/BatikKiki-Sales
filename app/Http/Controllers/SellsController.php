@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Sells;
+use App\Models\Dailysells;
 
 
 class SellsController extends Controller
@@ -29,29 +30,10 @@ class SellsController extends Controller
     {
     $sells = DB::table('sells')
     ->join('product','product.id','=','sells.product_id')
-    ->select('sells.*', 'product.name as p_name')
+    ->select('sells.*', 'product.name as p_name','product.size as p_size')
     ->get();
     return view('sells.home', ['sells' => $sells]);
     }
-
-    // public function getData()
-    // {
-    //     // $response = Http::get('http://localhost:8000/api/treatment/index');
-    //     // $response = $response->object();
-    //     // dd($response);
-
-    //     // $title = 'Treatments';
-    //     // if (request('category')) {
-    //     //     $title = "Semua Treatments";
-    //     // }
-    //     // return view('admin.home', [
-    //     //    'title' => 'Treatments' . $title,
-    //     //     'active' => 'events',
-    //     //     'treatments' => $response->data,
-    //     // ]);
-    //     $sells = Sells::all();
-    //     return view('dashboard', ['user' => $user,'sells'=>$sells]);
-    // }
 
     public function addSells()
     {
@@ -61,42 +43,110 @@ class SellsController extends Controller
 
     public function autocomplete(Request $request): JsonResponse
     {
-        $data = Product::select("name")
-                    ->where('name', 'LIKE', '%'. $request->get('query'). '%')
+        $data = Product::select(DB::raw("CONCAT(name,' (',size,') ') as name"))
+                    ->where(DB::raw("CONCAT(name,' ',size)"), 'LIKE', '%'. $request->get('query'). '%')
                     ->get();
-         
         return response()->json($data);
     }
+
+    // cara storenya pas di controller ambil id dari hasil concat
     
-    public function storeProduct(Request $request)
+    public function storeSells(Request $request)
     {
+
+        $idTest = Product::select("id","stock",DB::raw("CONCAT(name,' (',size,') ') as name"))
+        ->where(DB::raw("CONCAT(name,' (',size,') ')"), 'LIKE', '%'. $request->p_name. '%')
+        ->first();
+
         $request->validate([
-            'name' => 'required',
-            'size' => 'required',
-            'stock' => 'required',
-            'details' => 'required',
-            'highest_price' => 'required',
-            'lowest_price' => 'required',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'customer' => 'required',
+            'date' => 'required',
+            'quantity' => 'required',
+            'price' => 'required',
+            'total' => 'required',
         ]);
 
-        // if ($request->hasfile('image')) {
-        //     $filename = round(microtime(true) * 1000).'-'.str_replace(' ','-',$request->file('image')->getClientOriginalName());
-        //     $request->file('image')->move(public_path('images/product'), $filename);
-        // }
+        if($idTest->stock>=$request->quantity){
+            
+            Sells::create([
+                'product_id' => $idTest->id,
+                'customer' => $request->customer,
+                'date' => $request ->date,
+                'quantity' => $request->quantity,
+                'price' => $request->price,
+                'total' => $request->total,
+            ]);
 
-        Product::create([
-            'name' => $request->name,
-            'size' => $request ->size,
-            'stock' => $request->stock,
-            'details' => $request->details,
-            'highest_price' => $request->highest_price,
-            'lowest_price' => $request->lowest_price,
-            // 'image' => $filename,
+            if(Dailysells::whereDate('date',$request->date)->exists()){
+                $oldTotal = Dailysells::where('date',$request->date)->first();
+                Dailysells::whereDate('date',$request->date)->update([
+                    'total'=> $oldTotal->total + $request->total
+                ]);
+            }else{
+                Dailysells::create([
+                    'date' => $request ->date,
+                    'total' => $request->total,
+                ]);
+            }
+           
+
+            Product::where("id",$idTest->id)->update([
+                'stock'=>($idTest->stock - $request->quantity)
+            ]);
+            
+        }else{
+            return redirect()->back()->with('message', 'Stock '.$idTest->name.' hanya ada: '.$idTest->stock);
+        }
+
+        // dd($shop);
+
+        return redirect()->to('/penjualan');
+    }
+
+    public function editSells($id, Request $request)
+    {
+        $sells = DB::table('sells')
+            ->where('sells.id',$id)
+            ->join('product','product.id','=','sells.product_id')
+            ->select(DB::raw("CONCAT(name,' (',size,')') as p_name"),"sells.*" )
+            ->get();
+
+        return view('sells.editSells',
+        ['sells'=>$sells,
+    ]);
+    }
+
+    public function updateSells(Request $request)
+    {
+        $request->validate([
+            'customer' => 'required',
+            'date' => 'required',
+            'quantity' => 'required',
+            'price' => 'required',
+            'total' => 'required',
+        ]);
+
+        $idTest = Product::select("id")
+        ->where(DB::raw("CONCAT(name,' (',size,') ')"), 'LIKE', '%'. $request->p_name. '%')
+        ->first();
+
+        Sells::where('id',$request->id)->update([
+            'product_id' => $idTest->id,
+            'customer' => $request->customer,
+            'date' => $request ->date,
+            'quantity' => $request->quantity,
+            'price' => $request->price,
+            'total' => $request->total,
         ]);
         // dd($shop);
 
-        return redirect()->to('/produk');
+        return redirect()->to('/penjualan');
+    }
+
+    public function deleteSells($id)
+    {
+    DB::table('sells')->where('id',$id)->delete();
+    return redirect('/penjualan');
     }
     
 }

@@ -5,23 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Sells extends Model
+class Expenses extends Model
 {
     use HasFactory;
 
-    protected $table = 'sells';
+    protected $table = 'expenses';
 
     protected $fillable = [
-        'product_id',
         'date',
-        'customer',
+        'name',
+        'type',
         'quantity',
         'price',
         'total'
     ];
-
-    public function product()
-    {
-        return $this->belongsToMany(Product::class);
-    }
 }

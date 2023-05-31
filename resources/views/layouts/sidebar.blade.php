@@ -75,29 +75,23 @@
                 Penjualan
               </a>
             </li>
-            @if("Auth::user()->name" == "Salsabila")
+            @if(Auth::user()->is_Admin == 1)
             <li>
-              <a class="text-white" href="#">
-                <i class="bi bi-bicycle mr-2"></i>
-                Sports
+              <a class="text-white" href="{{route('biaya')}}">
+                <i class="bi bi-boombox mr-2"></i>
+                Pengeluaran Biaya
               </a>
             </li>
             <li>
-              <a class="text-white" href="#">
-                <i class="bi bi-boombox mr-2"></i>
-                Music
+              <a class="text-white" href="{{route('user')}}">
+                <i class="bi bi-bookmark mr-2"></i>
+                Pegawai
               </a>
             </li>
             <li>
               <a class="text-white" href="#">
                 <i class="bi bi-film mr-2"></i>
-                Film
-              </a>
-            </li>
-            <li>
-              <a class="text-white" href="#">
-                <i class="bi bi-bookmark mr-2"></i>
-                Bookmark
+                Buku Besar Keuangan
               </a>
             </li>
             @endif

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Daftar Penjualan') }}
+            {{ __('Daftar Pengeluaran Biaya') }}
         </h2>
     </x-slot>
 
@@ -9,15 +9,14 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                <a href="/penjualan/tambahPenjualan" class="btn btn-primary mb-4">Tambah Penjualan</a>
+                <a href="/biaya/tambahBiaya" class="btn btn-primary mb-4">Tambah Pengeluaran</a>
                 <table class="table table-bordered table-hover text-center">
                                 <thead>
                                     <tr>
                                         <th>No</th>
                                         <th>Tanggal</th>
-                                        <th>Nama Pembeli</th>
-                                        <th>Produk</th>
-                                        <th>Size</th>
+                                        <th>Nama</th>
+                                        <th>Tipe Pengeluaran</th>
                                         <th>Jumlah</th>
                                         <th>Harga</th>
                                         <th>Total Harga</th>
@@ -25,17 +24,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($sells as $sells)
+                                @foreach($expenses as $expenses)
                                     <tr>
                                         <th>{{$loop->index+1}}</th>
-                                        <th>{{$sells->date}}</th>
-                                        <th>{{$sells->customer}}</th>
-                                        <th>{{$sells->p_name}}</th>
-                                        <th>{{$sells->p_size}}</th>
-                                        <th>{{$sells->quantity}}</th>
-                                        <th>{{$sells->price}}</th>
-                                        <th>{{$sells->total}}</th>
-                                        <th><a href="/penjualan/editPenjualan/{{$sells->id}}" class="btn btn-success">Edit</a> | <a href="/penjualan/hapusPenjualan/{{$sells->id}}" class="btn btn-danger">Delete</a></th>
+                                        <th>{{$expenses->date}}</th>
+                                        <th>{{$expenses->name}}</th>
+                                        <th>{{$expenses->type}}</th>
+                                        <th>{{$expenses->quantity}}</th>
+                                        <th>{{$expenses->price}}</th>
+                                        <th>{{$expenses->total}}</th>
+                                        <th><a href="/biaya/editBiaya/{{$expenses->id}}" class="btn btn-success">Edit</a> | <a href="/biaya/hapusBiaya/{{$expenses->id}}" class="btn btn-danger">Delete</a></th>
                                     </tr>
                                 @endforeach
                                 </tbody>

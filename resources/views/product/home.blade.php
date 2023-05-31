@@ -9,6 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+                <a href="/produk/tambahProduk" class="btn btn-primary">Tambah Produk</a>
                 <table class="table table-bordered table-hover text-center">
                                 <thead>
                                     <tr>
@@ -25,19 +26,21 @@
                                 <tbody>
                                 @foreach($product as $product)
                                     <tr>
-                                        <th>{{$product->id}}</th>
+                                        <th>{{$loop->index+1}}</th>
                                         <th><img src="/images/product/{{ $product->image }}" width="100px"></th>
                                         <th>{{$product->name}}</th>
                                         <th>{{$product->size}}</th>
                                         <th>{{$product->highest_price}}</th>
                                         <th>{{$product->lowest_price}}</th>
                                         <th>{{$product->stock}}</th>
-                                        <th><a href="/produk/editProduk/{{$product->id}}" class="btn btn-success">Edit</a> | <a href="/produk/hapusProduk/{{$product->id}}" class="btn btn-danger">Delete</a></th>
+                                        <th><a href="/produk/detailProduk/{{$product->id}}" class="btn btn-info">Detail</a>
+                                         | <a href="/produk/editProduk/{{$product->id}}" class="btn btn-success">Edit</a>
+                                          | <a href="/produk/hapusProduk/{{$product->id}}" class="btn btn-danger">Delete</a>
+                                    </th>
                                     </tr>
                                 @endforeach
                                 </tbody>
                             </table>
-                            <a href="/produk/tambahProduk" class="btn btn-primary">Tambah Items</a>
                 </div>
             </div>
         </div>
