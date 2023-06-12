@@ -17,6 +17,7 @@ class Expenses extends Model
         'type',
         'quantity',
         'price',
-        'total'
+        'pemasukan',
+        'pengeluaran'
     ];
 }

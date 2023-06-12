@@ -12,7 +12,9 @@ class Dailysells extends Model
     protected $table = 'dailysells';
 
     protected $fillable = [
+        'type',
         'date',
-        'total'
+        'pemasukan',
+        'pengeluaran'
     ];
 }

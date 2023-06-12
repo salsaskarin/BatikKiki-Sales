@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->string('name')->nullable();
-            $table->string('type');
-            $table->integer('quantity');
-            $table->integer('price');
-            $table->integer('total');
+            $table->string('name', 100)->nullable();
+            $table->string('type', 50);
+            $table->string('quantity', 10);
+            $table->string('price', 10)->nullable();
+            $table->string('pemasukan', 10);
+            $table->string('pengeluaran', 10);
             $table->timestamps();
         });
     }

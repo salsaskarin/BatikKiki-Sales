@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Http;
 
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Sells;
+
 
 
 class ProductController extends Controller
@@ -29,30 +31,18 @@ class ProductController extends Controller
     return view('product.home', ['product' => $product]);
     }
 
+    public function search(Request $request)
+    {
+        $keyword = $request->search;
+        $product = Product::where('name', 'like', "%" . $keyword . "%")->get();
+        return view('product.home', compact('product'));
+    }
+
     public function details($id)
     {
         $product = DB::table('product')->where('id',$id)->get();
         return view('product.detailsProduct',['product'=>$product]);
     }
-
-    // public function getData()
-    // {
-    //     // $response = Http::get('http://localhost:8000/api/treatment/index');
-    //     // $response = $response->object();
-    //     // dd($response);
-
-    //     // $title = 'Treatments';
-    //     // if (request('category')) {
-    //     //     $title = "Semua Treatments";
-    //     // }
-    //     // return view('admin.home', [
-    //     //    'title' => 'Treatments' . $title,
-    //     //     'active' => 'events',
-    //     //     'treatments' => $response->data,
-    //     // ]);
-    //     $product = Product::all();
-    //     return view('dashboard', ['user' => $user,'product'=>$product]);
-    // }
 
     public function addProduct()
     {
@@ -63,13 +53,13 @@ class ProductController extends Controller
     public function storeProduct(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'size' => 'required',
-            'stock' => 'required',
-            'details' => 'required',
-            'highest_price' => 'required',
-            'lowest_price' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'name' => 'required|max:50',
+            'size' => 'required|max:10',
+            'stock' => 'required|gt:0|max:10',
+            'details' => 'required|max:255',
+            'highest_price' => 'required|gt:0|max:10',
+            'lowest_price' => 'required|gt:0|max:10',
+            'image' => 'image|mimes:jpeg,png,jpg,svg|max:2048',
         ]);
 
         if ($image = $request->file('image')) {
@@ -90,7 +80,8 @@ class ProductController extends Controller
         ]);
         // dd($shop);
 
-        return redirect()->to('/produk');
+        return redirect()->to('/produk')
+        ->with('success','Produk berhasil ditambahkan.');
     }
 
     public function editProduct($id)
@@ -104,12 +95,12 @@ class ProductController extends Controller
     public function updateProduct(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'size' => 'required',
-            'stock' => 'required',
-            'details' => 'required',
-            'highest_price' => 'required',
-            'lowest_price' => 'required',
+            'name' => 'required|max:50',
+            'size' => 'required|max:10',
+            'stock' => 'required|max:10',
+            'details' => 'required|max:255',
+            'highest_price' => 'required|max:10',
+            'lowest_price' => 'required|max:10',
         ]);
 
         Product::where('id',$request->id)->update([
@@ -132,13 +123,20 @@ class ProductController extends Controller
         }
         
         return redirect()->to('/produk')
-                        ->with('success','Product created successfully.');
+                        ->with('success','Produk berhasil diperbarui.');
     }
 
     public function deleteProduct($id)
     {
-    DB::table('product')->where('id',$id)->delete();
-    return redirect('/produk');
+
+        if(Sells::where('product_id',$id)->count('*') != 0){
+            return redirect('/produk')->with('msg','Barang tidak dapat dihapus, karena terdapat data pada penjualan.');
+        }else{
+            DB::table('product')->where('id',$id)->delete();
+        }
+    
+        return redirect()->to('/produk')
+        ->with('success','Produk berhasil dihapus.');
     }
 
     

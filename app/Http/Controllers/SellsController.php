@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
+use Carbon\Carbon;
 
 use App\Models\User;
 use App\Models\Product;
@@ -31,8 +32,32 @@ class SellsController extends Controller
     $sells = DB::table('sells')
     ->join('product','product.id','=','sells.product_id')
     ->select('sells.*', 'product.name as p_name','product.size as p_size')
+    ->orderBy('date','desc')
     ->get();
-    return view('sells.home', ['sells' => $sells]);
+    $total=Sells::sum('total');
+    return view('sells.home', [
+        'sells' => $sells,
+        'total'=>$total
+]);
+    }
+
+    public function sellsReport()
+    {
+        if (request()->start_date || request()->end_date) {
+            $start_date = Carbon::parse(request()->start_date)->toDateTimeString();
+            $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            $sells = Sells::whereBetween('date',[$start_date,$end_date])
+            ->orderBy('date')
+            ->join('product','product.id','=','sells.product_id')
+    ->select('sells.*', 'product.name as p_name','product.size as p_size')
+    ->get();
+
+    $total=Sells::whereBetween('date',[$start_date,$end_date])->sum('total');
+        } else {
+            $sells = Sells::latest()->get();
+        }
+        
+        return view('sells.home', compact('sells','total'));
     }
 
     public function addSells()
@@ -43,8 +68,8 @@ class SellsController extends Controller
 
     public function autocomplete(Request $request): JsonResponse
     {
-        $data = Product::select(DB::raw("CONCAT(name,' (',size,') ') as name"))
-                    ->where(DB::raw("CONCAT(name,' ',size)"), 'LIKE', '%'. $request->get('query'). '%')
+        $data = Product::select(DB::raw("CONCAT(name,' (',size,')',', Stok: ',stock) as name"))
+                    ->where(DB::raw("CONCAT(name,' ',size,' ',stock)"), 'LIKE', '%'. $request->get('query'). '%')
                     ->get();
         return response()->json($data);
     }
@@ -54,16 +79,17 @@ class SellsController extends Controller
     public function storeSells(Request $request)
     {
 
-        $idTest = Product::select("id","stock",DB::raw("CONCAT(name,' (',size,') ') as name"))
-        ->where(DB::raw("CONCAT(name,' (',size,') ')"), 'LIKE', '%'. $request->p_name. '%')
+        $idTest = Product::select("id","stock",DB::raw("CONCAT(name,' (',size,')',', Stok: ',stock) as name"))
+        ->where(DB::raw("CONCAT(name,' (',size,')',', Stok: ',stock)"), 'LIKE', '%'. $request->p_name. '%')
         ->first();
 
         $request->validate([
-            'customer' => 'required',
+            'customer' => 'max:50',
+            'p_name' => 'required',
             'date' => 'required',
-            'quantity' => 'required',
-            'price' => 'required',
-            'total' => 'required',
+            'quantity' => 'required|gt:0|max:10',
+            'price' => 'gt:0|max:10',
+            'total' => 'required|gt:0|max:10',
         ]);
 
         if($idTest->stock>=$request->quantity){
@@ -80,12 +106,16 @@ class SellsController extends Controller
             if(Dailysells::whereDate('date',$request->date)->exists()){
                 $oldTotal = Dailysells::where('date',$request->date)->first();
                 Dailysells::whereDate('date',$request->date)->update([
-                    'total'=> $oldTotal->total + $request->total
+                    'pemasukan'=> $oldTotal->pemasukan + $request->total,
+                    'type' => $request->type,
+                    'pengeluaran' => $request->pengeluaran
                 ]);
             }else{
                 Dailysells::create([
                     'date' => $request ->date,
-                    'total' => $request->total,
+                    'pemasukan' => $request->total,
+                    'type' => $request->type,
+                    'pengeluaran' => $request->pengeluaran
                 ]);
             }
            
@@ -100,7 +130,8 @@ class SellsController extends Controller
 
         // dd($shop);
 
-        return redirect()->to('/penjualan');
+        return redirect()->to('/penjualan')
+        ->with('success','Data penjualan berhasil ditambahkan.');
     }
 
     public function editSells($id, Request $request)
@@ -108,7 +139,7 @@ class SellsController extends Controller
         $sells = DB::table('sells')
             ->where('sells.id',$id)
             ->join('product','product.id','=','sells.product_id')
-            ->select(DB::raw("CONCAT(name,' (',size,')') as p_name"),"sells.*" )
+            ->select(DB::raw("CONCAT(name,' (',size,')',', Stok: ',stock) as p_name"),"sells.*" )
             ->get();
 
         return view('sells.editSells',
@@ -119,34 +150,99 @@ class SellsController extends Controller
     public function updateSells(Request $request)
     {
         $request->validate([
-            'customer' => 'required',
+            'customer' => 'max:50',
+            'p_name' => 'required',
             'date' => 'required',
-            'quantity' => 'required',
-            'price' => 'required',
-            'total' => 'required',
+            'quantity' => 'required|gt:0|max:10',
+            'price' => 'gt:0|max:10',
+            'total' => 'required|gt:0|max:10',
         ]);
 
-        $idTest = Product::select("id")
-        ->where(DB::raw("CONCAT(name,' (',size,') ')"), 'LIKE', '%'. $request->p_name. '%')
+
+        $idTest = Product::select("id",'stock')
+        ->where(DB::raw("CONCAT(name,' (',size,')',', Stok: ',stock)"), 'LIKE', '%'. $request->p_name. '%')
         ->first();
 
-        Sells::where('id',$request->id)->update([
-            'product_id' => $idTest->id,
-            'customer' => $request->customer,
-            'date' => $request ->date,
-            'quantity' => $request->quantity,
-            'price' => $request->price,
-            'total' => $request->total,
-        ]);
-        // dd($shop);
+        $prevtotal = Sells::where('id', $request->id)
+        ->select("total", "quantity")->first();
 
-        return redirect()->to('/penjualan');
+        $selisih = $request->total - $prevtotal->total;
+
+        $totalstock = $idTest->stock + $prevtotal->quantity;
+
+        if(($idTest->stock+$prevtotal->quantity)>=$request->quantity){ //Mengecek stock yang ada
+
+            Product::where("id",$idTest->id)->update([
+                'stock'=>($totalstock - $request->quantity)
+            ]);
+
+            Sells::where('id',$request->id)->update([ 
+                'product_id' => $idTest->id,
+                'customer' => $request->customer,
+                'date' => $request ->date,
+                'quantity' => $request->quantity,
+                'price' => $request->price,
+                'total' => $request->total,
+            ]);
+
+                if(Dailysells::whereDate('date',$request->date)->exists()){ //Membuat data pada dailysells jika belum ada
+                    $oldTotal = Dailysells::where('date',$request->date)->first();
+                    Dailysells::whereDate('date',$request->date)->update([
+                        'pemasukan'=> $oldTotal->pemasukan + $selisih,
+                        'type' => $request->type,
+                        'pengeluaran' => $request->pengeluaran
+                    ]);
+                }else{ //Mengubah data pada dailysells jika sudah ada
+                    Dailysells::create([
+                        'date' => $request ->date,
+                        'pemasukan' => $request->total,
+                        'type' => $request->type,
+                        'pengeluaran' => $request->pengeluaran
+                    ]);
+                }
+
+                $check=Dailysells::where('date',$request->date)->first();
+                if($check->pemasukan == 0){ //Menghapus jika total pemasukan pada tanggal tersebut = 0
+                    Dailysells::where('date',$request->date)->delete();
+                }
+            return redirect()->to('/penjualan')
+            ->with('success','Data penjualan berhasil diperbarui.');
+        }else{
+        return redirect()->back()->with('message', 'Stock '.$idTest->name.' hanya ada: '.$idTest->stock);
+        }
+ 
+
     }
 
     public function deleteSells($id)
     {
+
+
+    $val = Sells::where('id', $id)
+    ->select('date', 'total', 'quantity','product_id')
+    ->first();
+
+    $product = Product::where("id",$val->product_id)->select("stock")->first();
+
+    Product::where("id",$val->product_id)->update([
+        'stock'=>($product->stock + $val->quantity)
+    ]);
+
+    $oldTotal = Dailysells::where('date',$val->date)->select("id", "date", "pemasukan")->first();
+
+    Dailysells::whereDate('date',$val->date)->update([
+        'pemasukan'=> $oldTotal->pemasukan - $val->total,
+    ]);
+
+    
+
+    $check=Dailysells::where('date',$val->date)->first();
+    if($check->pemasukan == 0){
+        Dailysells::where('date',$val->date)->delete();
+    }
     DB::table('sells')->where('id',$id)->delete();
-    return redirect('/penjualan');
+    return redirect()->to('/penjualan')
+        ->with('success','Data penjualan berhasil dihapus.');
     }
     
 }

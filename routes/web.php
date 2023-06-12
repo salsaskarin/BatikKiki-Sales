@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SellsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExpensesController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -25,15 +26,17 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    return redirect()->route('produk');
+})->middleware('auth')->name('dashboard');
 
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/rules', [DashboardController::class,'rules'])->name('rules');
+    Route::get('/rules', function() {
+        return view('rules');
+    })->name('rules');
 
     Route::get('/produk', [ProductController::class,'show'])->name('produk');
     Route::get('/produk/detailProduk/{id}', [ProductController::class,'details'])->name('detailProduk');
@@ -42,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/produk/editProduk/{id}', [ProductController::class,'editProduct'])->name('editProduk');
     Route::put('/produk/updateProduk', [ProductController::class,'updateProduct'])->name('updateProduk');
     Route::get('/produk/hapusProduk/{id}', [ProductController::class, 'deleteProduct'])->name('hapusProduk');
+    Route::get('/search', [ProductController::class, 'search'])->name('search');
 
     Route::get('/penjualan', [SellsController::class,'show'])->name('penjualan');
     Route::get('/penjualan/tambahPenjualan', [SellsController::class,'addSells'])->name('tambahPenjualan');
@@ -66,6 +70,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/editUser/{id}', [App\Http\Controllers\Auth\RegisteredUserController::class,'editUser'])->name('editUser');
     Route::put('/user/updateUser', [App\Http\Controllers\Auth\RegisteredUserController::class,'updateUser'])->name('updateUser');
     Route::get('/user/hapusUser/{id}', [App\Http\Controllers\Auth\RegisteredUserController::class, 'deleteUser'])->name('hapusUser');
+    Route::get('/searchUser', [App\Http\Controllers\Auth\RegisteredUserController::class, 'searchUser'])->name('searchUser');
+
+    Route::get('/laporan', [ReportController::class,'show'])->name('laporanKeuangan');
+
+    Route::get('/penjualan/filterPenjualan', [SellsController::class, 'sellsReport'])->name('filterPenjualan');
+    Route::get('/biaya/filterBiaya', [ExpensesController::class, 'expensesReport'])->name('filterBiaya');
+    Route::get('/laporan/filterBiaya', [ReportController::class, 'reportReport'])->name('filterLaporan');
+
 });
 
 require __DIR__.'/auth.php';

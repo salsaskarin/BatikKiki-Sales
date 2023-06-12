@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('product_id');
             $table->date('date');
-            $table->string('customer')->nullable();
-            $table->integer('quantity');
-            $table->integer('price');
-            $table->integer('total');
+            $table->string('customer', 50)->nullable();
+            $table->string('quantity', 10);
+            $table->string('price', 10)->nullable();
+            $table->string('total', 10);
             $table->timestamps();
         });
     }

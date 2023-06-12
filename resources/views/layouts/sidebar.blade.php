@@ -24,6 +24,7 @@
           li {
             list-style: none;
             margin: 20px 0 20px 0;
+            margin-bottom: 40px;
           }
     
           a {
@@ -54,14 +55,10 @@
     
       <body>
         <div>
-          <div class="sidebar p-4 bg-primary" id="sidebar">
-            <h4 class="mb-5 text-white">Batik Kiki</h4>
-            <li>
-              <a class="text-white" href="{{route('dashboard')}}">
-                <i class="bi bi-house mr-2"></i>
-                Dashboard
-              </a>
-            </li>
+          <div class="sidebar p-4 bg-success" id="sidebar">
+            <h4 class="mt-4 text-center text-white">Batik Kiki</h4>
+            <p class="mb-5 mt-1 text-center text-white">Manajemen Penjualan Apps</p>
+
             <li>
               <a class="text-white" href="{{route('produk')}}">
                 <i class="bi bi-boxes mr-2"></i>
@@ -71,34 +68,35 @@
             
             <li>
               <a class="text-white" href="{{route('penjualan')}}">
-                <i class="bi bi-paypal mr-2"></i>
+                <i class="bi bi-wallet mr-2"></i>
                 Penjualan
               </a>
             </li>
             @if(Auth::user()->is_Admin == 1)
             <li>
               <a class="text-white" href="{{route('biaya')}}">
-                <i class="bi bi-boombox mr-2"></i>
+                <i class="bi bi-graph-down mr-2"></i>
                 Pengeluaran Biaya
               </a>
             </li>
             <li>
               <a class="text-white" href="{{route('user')}}">
-                <i class="bi bi-bookmark mr-2"></i>
+                <i class="bi bi-person-badge mr-2"></i>
                 Pegawai
               </a>
             </li>
             <li>
-              <a class="text-white" href="#">
-                <i class="bi bi-film mr-2"></i>
-                Buku Besar Keuangan
+              <a class="text-white" href="{{route('laporanKeuangan')}}">
+                <i class="bi bi-book mr-2"></i>
+                Laporan Keuangan
               </a>
             </li>
             @endif
           </div>
+          <br>
         </div>
         <div class="p-4" id="main-content">
-          <button class="btn btn-primary" id="button-toggle">
+          <button class="btn btn-success" id="button-toggle">
             <i class="bi bi-list"></i>
           </button>
           <div class="card mt-5">

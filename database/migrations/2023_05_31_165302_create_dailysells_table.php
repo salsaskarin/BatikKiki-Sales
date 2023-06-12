@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('dailysells', function (Blueprint $table) {
             $table->id();
+            $table->string('type', 50);
             $table->date('date');
-            $table->integer('total');
+            $table->string('pemasukan', 20);
+            $table->string('pengeluaran', 20);
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('daily');
+        Schema::dropIfExists('dailysells');
     }
 };

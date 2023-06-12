@@ -1,4 +1,8 @@
 <x-guest-layout>
+<x-slot name="header">
+    @section('title','Ganti Kata Sandi | Batik Kiki Sales')
+        
+    </x-slot>
     <form method="POST" action="{{ route('password.store') }}">
         @csrf
 
@@ -14,14 +18,14 @@
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" :value="__('Kata sandi baru')" />
             <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <x-input-label for="password_confirmation" :value="__('Konfirmasi kata sandi baru')" />
 
             <x-text-input id="password_confirmation" class="block mt-1 w-full"
                                 type="password"
