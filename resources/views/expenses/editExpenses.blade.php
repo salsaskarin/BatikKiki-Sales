@@ -7,6 +7,8 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        @foreach($expenses as $expenses)
+        <small class="text-gray-500">Update terakhir : {{$expenses->updated_at}}</small>
            <h4 class="font-semibold text-gray-800 leading-tight">
             {{ __('Edit Pengeluaran Biaya') }}
         </h4> 
@@ -19,7 +21,6 @@
         @csrf
         {{ method_field('PUT') }}
 
-        @foreach($expenses as $expenses)
         <input type="hidden" name="id" value="{{$expenses->id}}">
 
         <!-- Tanggal -->
@@ -59,6 +60,9 @@
 
         <!-- Price -->
         <x-input-label for="price" :value="__('Harga')" class="mt-4"/>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __("(Wajib diisi)") }}
+        </p>
         <div class=" col-md-3 col-sm-12">
             <div class="input-group col-md-3 col-sm-12">
                 <span class="input-group-text" id="basic-addon1">Rp.</span>

@@ -53,12 +53,12 @@ class ProductController extends Controller
     public function storeProduct(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:50',
-            'size' => 'required|max:10',
-            'stock' => 'required|gt:0|max:10',
+            'name' => 'required|max:100',
+            'size' => 'required|max:20',
+            'stock' => 'required|gt:0|digits_between:1,10',
             'details' => 'required|max:255',
-            'highest_price' => 'required|gt:0|max:10',
-            'lowest_price' => 'required|gt:0|max:10',
+            'highest_price' => 'required|gt:0|digits_between:1,10',
+            'lowest_price' => 'required|gt:0|digits_between:1,10',
             'image' => 'image|mimes:jpeg,png,jpg,svg|max:2048',
         ]);
 
@@ -78,7 +78,6 @@ class ProductController extends Controller
             'lowest_price' => $request->lowest_price,
             'image' => $productImage,
         ]);
-        // dd($shop);
 
         return redirect()->to('/produk')
         ->with('success','Produk berhasil ditambahkan.');
@@ -95,12 +94,12 @@ class ProductController extends Controller
     public function updateProduct(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:50',
-            'size' => 'required|max:10',
-            'stock' => 'required|max:10',
+            'name' => 'required|max:100',
+            'size' => 'required|max:20',
+            'stock' => 'required|gt:0|digits_between:1,10',
             'details' => 'required|max:255',
-            'highest_price' => 'required|max:10',
-            'lowest_price' => 'required|max:10',
+            'highest_price' => 'required|gt:0|digits_between:1,10',
+            'lowest_price' => 'required|gt:0|digits_between:1,10',
         ]);
 
         Product::where('id',$request->id)->update([

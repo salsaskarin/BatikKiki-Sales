@@ -28,30 +28,33 @@ class ExpensesController extends Controller
     {
         $expenses = DB::table('expenses')
         ->orderBy('date','desc')
-        ->get();
-        $total=Expenses::sum('pengeluaran');
+        ->paginate(15);
+        $now = Carbon::now()->toDateString();
         return view('expenses.home', [
             'expenses' => $expenses,
-            'total' => $total
+            'now' => $now
         ]);
     }
 
     public function expensesReport()
     {
-        if (request()->start_date || request()->end_date) {
+        if (request()->start_date) {
             $start_date = Carbon::parse(request()->start_date)->toDateTimeString();
-            $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            if(!empty(request()->end_date)){
+                $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            }else{
+                $end_date = Carbon::now();
+            }
             $expenses = Expenses::whereBetween('date',[$start_date,$end_date])
             ->orderBy('date')
-    ->select('expenses.*')
-    ->get();
+            ->select('expenses.*')
+            ->paginate();
 
-    $total=Expenses::whereBetween('date',[$start_date,$end_date])->sum('pengeluaran');
         } else {
             $expenses = Expenses::latest()->get();
         }
-        
-        return view('expenses.home', compact('expenses','total'));
+        $now = Carbon::now()->toDateString();
+        return view('expenses.home', compact('expenses','now'));
     }
 
     public function addExpenses()
@@ -66,9 +69,9 @@ class ExpensesController extends Controller
             'type' => 'required|max:50',
             'name' => 'max:50',
             'date' => 'required',
-            'quantity' => 'required|gt:0|max:10',
-            'price' => 'gt:0|max:10',
-            'pengeluaran' => 'required|max:10',
+            'quantity' => 'required|gt:0|digits_between:1,10',
+            'price' => 'gt:0|digits_between:1,10',
+            'pengeluaran' => 'required|gt:0|digits_between:1,10',
         ]);
 
         Expenses::create([
@@ -112,7 +115,6 @@ class ExpensesController extends Controller
             'pengeluaran' => $request->pengeluaran,
             'pemasukan' =>$request->pemasukan,
         ]);
-        // dd($shop);
 
         return redirect()->to('/biaya')
         ->with('success','Data pengeluaran berhasil diperbarui.');

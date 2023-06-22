@@ -30,7 +30,7 @@
                             <small class="font-semibold text-gray-800 mt-2 mr-2 leading-tight">Dari : </small>
                             <input type="date" class="form-control" placeholder="Dari" name="start_date" required>
                             <small class="font-semibold text-gray-800 mt-2 ml-2 mr-2 leading-tight">Sampai : </small>
-                            <input type="date" class="form-control" placeholder="Sampai" name="end_date">
+                            <input type="date" class="form-control" placeholder="Sampai" name="end_date" value="{{$now}}">
                             <button class="btn btn-outline-secondary" type="submit">Cari</button>
                             <a class="btn btn-outline-danger" href="/penjualan">Reset filter</a>
                         </div>
@@ -54,7 +54,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($sells as $key => $sells)
+                                @php
+                                $tmasuk = 0;
+                                @endphp
+                                @foreach ($sells as $key => $s)
+                                
+                                @php
+                                    $tmasuk += $s->total;
+                                @endphp
                                     @if($loop->last)
                                         <tr class=" border-black border-top border-start border-end">
                                     @else
@@ -62,15 +69,15 @@
                                     @endif
                                     
                                         <th class="border-end border-black">{{++$key}}</th>
-                                        <th>{{date(" d F Y",strtotime($sells->date))}}</th>
-                                        <th>{{$sells->customer}}</th>
-                                        <th>{{$sells->p_name}}</th>
-                                        <th>{{$sells->p_size}}</th>
-                                        <th>{{$sells->quantity}}</th>
-                                        <th>Rp{{number_format($sells->price,0,'','.')}}</th>
-                                        <th>Rp{{number_format($sells->total,0,'','.')}}</th>
-                                        <th class="border-start border-black"><a href="/penjualan/editPenjualan/{{$sells->id}}" class="btn btn-success btn-sm">Edit</a>
-                                        <a href="/penjualan/hapusPenjualan/{{$sells->id}}" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin akan menghapus data penjualan ini?');">Delete</a></th>
+                                        <th>{{date(" d F Y",strtotime($s->date))}}</th>
+                                        <th>{{$s->customer}}</th>
+                                        <th>{{$s->p_name}}</th>
+                                        <th>{{$s->p_size}}</th>
+                                        <th>{{$s->quantity}}</th>
+                                        <th>Rp{{number_format($s->price,0,'','.')}}</th>
+                                        <th>Rp{{number_format($s->total,0,'','.')}}</th>
+                                        <th class="border-start border-black"><a href="/penjualan/editPenjualan/{{$s->id}}" class="btn btn-success btn-sm">Edit</a>
+                                        <a href="/penjualan/hapusPenjualan/{{$s->id}}" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin akan menghapus data penjualan ini?');">Delete</a></th>
                                         
                                     </tr>
                                     
@@ -78,11 +85,12 @@
                                 <tr class=" border-black">
                                        
                                         <td colspan="7" class="font-semibold">Total Penjualan</td>
-                                        <td colspan="2"class="font-semibold">Rp{{number_format($total,0,'','.')}}</td>
+                                        <td colspan="2"class="font-semibold">Rp{{number_format($tmasuk,0,'','.')}}</td>
                                        
                                     </tr>
                                 </tbody>
                             </table>
+                            {!! $sells->withQueryString()->links('pagination::bootstrap-5') !!}
                         </div>
             </div>
         </div>

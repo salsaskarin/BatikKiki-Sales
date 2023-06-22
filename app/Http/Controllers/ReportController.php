@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
 use Carbon\Carbon;
+use PDF;
 
 use App\Models\User;
 use App\Models\Expenses;
@@ -41,16 +42,74 @@ class ReportController extends Controller
         $data = DB::table(DB::raw("({$p->toSql()}) AS p"))
         ->mergeBindings($p)
         ->select('date', 'type', 'pemasukan', 'pengeluaran')
-        ->orderBy('date')
-        ->get();
-        return view('report.home', ['data' => $data]);
+        ->orderBy('date','desc')
+        ->paginate(15);
+        $now = Carbon::now()->toDateString();
+        return view('report.home', compact('data','now'));
     }
 
     public function reportReport()
     {
-        if (request()->start_date || request()->end_date) {
+        if (request()->start_date) {
             $start_date = Carbon::parse(request()->start_date)->toDateTimeString();
-            $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            if(!empty(request()->end_date)){
+                $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            }else{
+                $end_date = Carbon::now();
+            }
+            
+            $p1 = DB::table('dailysells')
+            ->select('date', 'type', 'pemasukan','pengeluaran');
+
+            $p2 = DB::table('expenses')
+            ->select('date', 'type', 'pemasukan','pengeluaran');
+
+            $p = $p1->unionAll($p2);
+
+            $data = DB::table(DB::raw("({$p->toSql()}) AS p"))
+            ->mergeBindings($p)
+            ->select('date', 'type', 'pemasukan','pengeluaran')
+            ->whereBetween('date',[$start_date,$end_date])
+            ->orderBy('date')
+            ->paginate();
+        } else {
+            $data = report::latest()->get();
+        }
+        $now = Carbon::now()->toDateString();
+        return view('report.home', compact('data','now'));
+    }
+
+    public function cetakPdf()
+    {
+    	$p1 = DB::table('dailysells')
+        ->select('date', 'type', 'pemasukan', 'pengeluaran')
+        ->orderBy('date');
+
+        $p2 = DB::table('expenses')
+         ->select('date', 'type', 'pemasukan', 'pengeluaran')
+         ->orderBy('date');
+
+        $p = $p1->unionAll($p2);
+
+        $data = DB::table(DB::raw("({$p->toSql()}) AS p"))
+        ->mergeBindings($p)
+        ->select('date', 'type', 'pemasukan', 'pengeluaran')
+        ->orderBy('date')
+        ->get();
+ 
+    	$pdf = PDF::loadview('report.cetak',['data'=>$data]);
+    	return $pdf->download('laporan-keuangan.pdf');
+    }
+
+    public function cetakPdfFiltered()
+    {
+    	if (request()->start_date) {
+            $start_date = Carbon::parse(request()->start_date)->toDateTimeString();
+            if(!empty(request()->end_date)){
+                $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            }else{
+                $end_date = Carbon::now();
+            }
             $p1 = DB::table('dailysells')
             ->select('date', 'type', 'pemasukan','pengeluaran');
 
@@ -65,75 +124,14 @@ class ReportController extends Controller
             ->whereBetween('date',[$start_date,$end_date])
             ->orderBy('date')
             ->get();
-        } else {
-            $data = report::latest()->get();
         }
-        
-        return view('report.home', compact('data'));
-    }
-
-    public function addreport()
-    {
-        return view("report.addreport");
-
-    }
-    
-    public function storereport(Request $request)
-    {
-        $request->validate([
-            'type' => 'required',
-            'date' => 'required',
-            'quantity' => 'required',
-            'price' => 'required',
-            'total' => 'required',
+ 
+    	$pdf = PDF::loadview('report.cetak',[
+            'data'=>$data,
+            'start_date'=>$start_date,
+            'end_date'=>$end_date,
         ]);
-
-        report::create([
-            'type' => $request->type,
-            'name' => $request->name,
-            'date' => $request ->date,
-            'quantity' => $request->quantity,
-            'price' => $request->price,
-            'total' => $request->total,
-        ]);
-        return redirect()->to('/biaya');
-    }
-
-    public function editreport($id)
-    {
-
-        $report = DB::table('report')->where('id',$id)->get();
-        return view('report.editreport',['report'=>$report]);
-
-    }
-
-    public function updatereport(Request $request)
-    {
-        $request->validate([
-            'type' => 'required',
-            'date' => 'required',
-            'quantity' => 'required',
-            'price' => 'required',
-            'total' => 'required',
-        ]);
-
-        report::where('id',$request->id)->update([
-            'type' => $request->type,
-            'name' => $request->name,
-            'date' => $request ->date,
-            'quantity' => $request->quantity,
-            'price' => $request->price,
-            'total' => $request->total,
-        ]);
-        // dd($shop);
-
-        return redirect()->to('/biaya');
-    }
-
-    public function deletereport($id)
-    {
-    DB::table('report')->where('id',$id)->delete();
-    return redirect('/biaya');
+    	return $pdf->download('laporan-keuangan.pdf');
     }
     
 }

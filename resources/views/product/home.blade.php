@@ -47,8 +47,8 @@
                         <div class="card-footer text-sm">
                         <h5 class="card-title">{{$product->name}}</h5>
                         <p class="card-text">Ukuran : {{$product->size}}</p>
-                        <p class="card-text">Harga Tertinggi : {{$product->highest_price}}</p>
-                        <p class="card-text">Harga Terendah : {{$product->lowest_price}}</p>
+                        <p class="card-text">Harga Tertinggi : Rp{{number_format($product->highest_price,0,'','.')}}</p>
+                        <p class="card-text">Harga Terendah : Rp{{number_format($product->lowest_price,0,'','.')}}</p>
                         <p class="card-text">Stok : {{$product->stock}}</p>
                         <div class="form-group text-center">
                         <a href="/produk/detailProduk/{{$product->id}}" class="btn btn-info btn-sm">Detail</a>

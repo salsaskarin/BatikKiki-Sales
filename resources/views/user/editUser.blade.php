@@ -5,6 +5,8 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        @foreach($user as $user)
+        <small class="text-gray-500">Update terakhir : {{$user->updated_at}}</small>
           <h4 class="font-semibold text-gray-800 leading-tight">
             {{ __('Edit Data Pegawai') }}
         </h4>  
@@ -20,7 +22,6 @@
         @csrf
         {{ method_field('PUT') }}
 
-        @foreach($user as $user)
         <input type="hidden" name="id" value="{{$user->id}}">
 
         <!-- Name -->
@@ -69,8 +70,13 @@
             <x-input-label for="gender" :value="__('Jenis Kelamin')" />
             <div class="col-md-3 col-sm-12 block mt-1 w-full">
             <select name="gender" class="form-control" id="gender" value="{{ old('gender', $user->gender)}}">
-                                <option value="0">Laki-Laki</option>
-                                <option value="1" >Perempuan</option>
+                @if($user->gender == "L")
+                <option value="L" selected >Laki-laki</option>
+                <option value="P" >Perempuan</option>
+                @else
+                <option value="L" >Laki-laki</option>
+                <option value="P" selected >Perempuan</option>
+                @endif
                             </select>
             </div>
             <x-input-error :messages="$errors->get('gender')" class="mt-2" />

@@ -37,6 +37,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nama</th>
+                                        <th>L/P</th>
                                         <th>Email</th>
                                         <th>Nomor Telepon</th>
                                         <th>Alamat</th>
@@ -49,6 +50,7 @@
                                     <tr>
                                         <th>{{$loop->index+1}}</th>
                                         <th>{{$user->name}}</th>
+                                        <th>{{$user->gender}}</th>
                                         <th>{{$user->email}}</th>
                                         <th>{{$user->phone}}</th>
                                         <th>{{$user->address}}</th>

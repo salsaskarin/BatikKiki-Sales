@@ -33,31 +33,33 @@ class SellsController extends Controller
     ->join('product','product.id','=','sells.product_id')
     ->select('sells.*', 'product.name as p_name','product.size as p_size')
     ->orderBy('date','desc')
-    ->get();
-    $total=Sells::sum('total');
+    ->paginate(15);
+    $now = Carbon::now()->toDateString();
     return view('sells.home', [
         'sells' => $sells,
-        'total'=>$total
+        'now' => $now
 ]);
     }
 
     public function sellsReport()
     {
-        if (request()->start_date || request()->end_date) {
+        if (request()->start_date) {
             $start_date = Carbon::parse(request()->start_date)->toDateTimeString();
-            $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            if(!empty(request()->end_date)){
+                $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            }else{
+                $end_date = Carbon::now();
+            }
             $sells = Sells::whereBetween('date',[$start_date,$end_date])
             ->orderBy('date')
             ->join('product','product.id','=','sells.product_id')
-    ->select('sells.*', 'product.name as p_name','product.size as p_size')
-    ->get();
-
-    $total=Sells::whereBetween('date',[$start_date,$end_date])->sum('total');
+            ->select('sells.*', 'product.name as p_name','product.size as p_size')
+            ->paginate();
         } else {
             $sells = Sells::latest()->get();
         }
-        
-        return view('sells.home', compact('sells','total'));
+        $now = Carbon::now()->toDateString();
+        return view('sells.home', compact('sells','now'));
     }
 
     public function addSells()
@@ -85,15 +87,15 @@ class SellsController extends Controller
 
         $request->validate([
             'customer' => 'max:50',
-            'p_name' => 'required',
+            'p_name' => 'required|',
             'date' => 'required',
-            'quantity' => 'required|gt:0|max:10',
-            'price' => 'gt:0|max:10',
-            'total' => 'required|gt:0|max:10',
+            'quantity' => 'required|gt:0|digits_between:1,10',
+            'price' => 'gt:0|digits_between:1,10',
+            'total' => 'required|gt:0|digits_between:1,10',
         ]);
 
-        if($idTest->stock>=$request->quantity){
-            
+        if(!empty($idTest)){
+            if($idTest->stock>=$request->quantity){
             Sells::create([
                 'product_id' => $idTest->id,
                 'customer' => $request->customer,
@@ -103,32 +105,32 @@ class SellsController extends Controller
                 'total' => $request->total,
             ]);
 
-            if(Dailysells::whereDate('date',$request->date)->exists()){
-                $oldTotal = Dailysells::where('date',$request->date)->first();
-                Dailysells::whereDate('date',$request->date)->update([
-                    'pemasukan'=> $oldTotal->pemasukan + $request->total,
-                    'type' => $request->type,
-                    'pengeluaran' => $request->pengeluaran
+                if(Dailysells::whereDate('date',$request->date)->exists()){
+                    $oldTotal = Dailysells::where('date',$request->date)->first();
+                    Dailysells::whereDate('date',$request->date)->update([
+                        'pemasukan'=> $oldTotal->pemasukan + $request->total,
+                        'type' => $request->type,
+                        'pengeluaran' => $request->pengeluaran
+                    ]);
+                }else{
+                    Dailysells::create([
+                        'date' => $request ->date,
+                        'pemasukan' => $request->total,
+                        'type' => $request->type,
+                        'pengeluaran' => $request->pengeluaran
+                    ]);
+                }
+                Product::where("id",$idTest->id)->update([
+                    'stock'=>($idTest->stock - $request->quantity)
                 ]);
-            }else{
-                Dailysells::create([
-                    'date' => $request ->date,
-                    'pemasukan' => $request->total,
-                    'type' => $request->type,
-                    'pengeluaran' => $request->pengeluaran
-                ]);
-            }
-           
-
-            Product::where("id",$idTest->id)->update([
-                'stock'=>($idTest->stock - $request->quantity)
-            ]);
             
-        }else{
-            return redirect()->back()->with('message', 'Stock '.$idTest->name.' hanya ada: '.$idTest->stock);
-        }
+            }else{
+                return redirect()->back()->with('message', 'Stock '.$idTest->name.' hanya ada: '.$idTest->stock);
+            }
 
-        // dd($shop);
+        }else{
+            return redirect()->back()->with('message', 'Barang '.$request->p_name.' tidak ada dalam data produk. Pilih yang muncul pada bawah kolom.');
+        }
 
         return redirect()->to('/penjualan')
         ->with('success','Data penjualan berhasil ditambahkan.');
@@ -153,9 +155,9 @@ class SellsController extends Controller
             'customer' => 'max:50',
             'p_name' => 'required',
             'date' => 'required',
-            'quantity' => 'required|gt:0|max:10',
-            'price' => 'gt:0|max:10',
-            'total' => 'required|gt:0|max:10',
+            'quantity' => 'required|gt:0|digits_between:1,10',
+            'price' => 'gt:0|digits_between:1,10',
+            'total' => 'required|gt:0|digits_between:1,10',
         ]);
 
 
@@ -166,52 +168,54 @@ class SellsController extends Controller
         $prevtotal = Sells::where('id', $request->id)
         ->select("total", "quantity")->first();
 
-        $selisih = $request->total - $prevtotal->total;
+        if(!empty($idTest)){
+            $selisih = $request->total - $prevtotal->total;
 
-        $totalstock = $idTest->stock + $prevtotal->quantity;
+            $totalstock = $idTest->stock + $prevtotal->quantity;
 
-        if(($idTest->stock+$prevtotal->quantity)>=$request->quantity){ //Mengecek stock yang ada
+            if(($idTest->stock+$prevtotal->quantity)>=$request->quantity){ //Mengecek stock yang ada
 
-            Product::where("id",$idTest->id)->update([
-                'stock'=>($totalstock - $request->quantity)
-            ]);
+                Product::where("id",$idTest->id)->update([
+                    'stock'=>($totalstock - $request->quantity)
+                ]);
 
-            Sells::where('id',$request->id)->update([ 
-                'product_id' => $idTest->id,
-                'customer' => $request->customer,
-                'date' => $request ->date,
-                'quantity' => $request->quantity,
-                'price' => $request->price,
-                'total' => $request->total,
-            ]);
+                Sells::where('id',$request->id)->update([ 
+                    'product_id' => $idTest->id,
+                    'customer' => $request->customer,
+                    'date' => $request ->date,
+                    'quantity' => $request->quantity,
+                    'price' => $request->price,
+                    'total' => $request->total,
+                ]);
 
-                if(Dailysells::whereDate('date',$request->date)->exists()){ //Membuat data pada dailysells jika belum ada
-                    $oldTotal = Dailysells::where('date',$request->date)->first();
-                    Dailysells::whereDate('date',$request->date)->update([
-                        'pemasukan'=> $oldTotal->pemasukan + $selisih,
-                        'type' => $request->type,
-                        'pengeluaran' => $request->pengeluaran
-                    ]);
-                }else{ //Mengubah data pada dailysells jika sudah ada
-                    Dailysells::create([
-                        'date' => $request ->date,
-                        'pemasukan' => $request->total,
-                        'type' => $request->type,
-                        'pengeluaran' => $request->pengeluaran
-                    ]);
-                }
+                    if(Dailysells::whereDate('date',$request->date)->exists()){ //Membuat data pada dailysells jika belum ada
+                        $oldTotal = Dailysells::where('date',$request->date)->first();
+                        Dailysells::whereDate('date',$request->date)->update([
+                            'pemasukan'=> $oldTotal->pemasukan + $selisih,
+                            'type' => $request->type,
+                            'pengeluaran' => $request->pengeluaran
+                        ]);
+                    }else{ //Mengubah data pada dailysells jika sudah ada
+                        Dailysells::create([
+                            'date' => $request ->date,
+                            'pemasukan' => $request->total,
+                            'type' => $request->type,
+                            'pengeluaran' => $request->pengeluaran
+                        ]);
+                    }
 
-                $check=Dailysells::where('date',$request->date)->first();
-                if($check->pemasukan == 0){ //Menghapus jika total pemasukan pada tanggal tersebut = 0
-                    Dailysells::where('date',$request->date)->delete();
-                }
-            return redirect()->to('/penjualan')
-            ->with('success','Data penjualan berhasil diperbarui.');
+                    $check=Dailysells::where('date',$request->date)->first();
+                    if($check->pemasukan == 0){ //Menghapus jika total pemasukan pada tanggal tersebut = 0
+                        Dailysells::where('date',$request->date)->delete();
+                    }
+                return redirect()->to('/penjualan')
+                ->with('success','Data penjualan berhasil diperbarui.');
+            }else{
+            return redirect()->back()->with('message', 'Stock '.$idTest->name.' hanya ada: '.$idTest->stock);
+            }
         }else{
-        return redirect()->back()->with('message', 'Stock '.$idTest->name.' hanya ada: '.$idTest->stock);
-        }
- 
-
+            return redirect()->back()->with('message', 'Barang '.$request->p_name.' tidak ada dalam data produk. Pilih yang muncul pada bawah kolom.');
+        }        
     }
 
     public function deleteSells($id)

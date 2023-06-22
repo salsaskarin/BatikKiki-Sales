@@ -1,4 +1,5 @@
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <x-app-layout>
     <x-slot name="header">
@@ -29,7 +30,7 @@
             <p class="mt-1 text-sm text-gray-600">
             {{ __("(Wajib diisi)") }}
         </p>
-            <x-text-input id="date" class="col-md-3 col-sm-12 block mt-1 w-full" type="date" name="date" :value="old('date')" />
+            <x-text-input id="date" class="col-md-3 col-sm-12 block mt-1 w-full" type="date" name="date" :value="old('date', date('Y-m-d'))" />
             <x-input-error :messages="$errors->get('date')" class="mt-2" />
         </div>
 
@@ -54,7 +55,7 @@
   
     $('#search').typeahead({
             source: function (query, process) {
-                return $.get(path, {
+                return jQuery.get(path, {
                     query: query
                 }, function (data) {
                     return process(data);
@@ -77,6 +78,9 @@
 
         <!-- Price -->
         <x-input-label for="price" :value="__('Harga')" class="mt-4"/>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __("(Wajib diisi)") }}
+        </p>
         <div class=" col-md-3 col-sm-12">
             <div class="input-group col-md-3 col-sm-12">
                 <span class="input-group-text" id="basic-addon1">Rp.</span>

@@ -1,4 +1,5 @@
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <x-app-layout>
     <x-slot name="header">
@@ -7,6 +8,8 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        @foreach($sells as $sells)
+        <small class="text-gray-500">Update terakhir : {{$sells->updated_at}}</small>
            <h4 class="font-semibold text-gray-800 leading-tight">
             {{ __('Edit Penjualan') }}
         </h4>
@@ -24,7 +27,6 @@
         @csrf
         {{ method_field('PUT') }}
 
-        @foreach($sells as $sells)
         <input type="hidden" name="id" value="{{$sells->id}}">
 
         <!-- Tanggal -->
@@ -80,6 +82,9 @@
 
         <!-- Price -->
         <x-input-label for="price" :value="__('Harga')" class="mt-4"/>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __("(Wajib diisi)") }}
+        </p>
         <div class=" col-md-3 col-sm-12">
             <div class="input-group col-md-3 col-sm-12">
                 <span class="input-group-text" id="basic-addon1">Rp.</span>

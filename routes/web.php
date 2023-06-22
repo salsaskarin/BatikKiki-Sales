@@ -54,14 +54,16 @@ Route::middleware('auth')->group(function () {
     Route::put('/penjualan/updatePenjualan', [SellsController::class,'updateSells'])->name('updatePenjualan');
     Route::get('/penjualan/hapusPenjualan/{id}', [SellsController::class, 'deleteSells'])->name('hapusPenjualan');
 
+    Route::get('/penjualan/autocomplete-search', [SellsController::class,'autocomplete'])->name('autocomplete');
+    Route::get('/penjualan/filterPenjualan', [SellsController::class, 'sellsReport'])->name('filterPenjualan');
+
+    Route::middleware('isadmin')->group(function () {
     Route::get('/biaya', [ExpensesController::class,'show'])->name('biaya');
     Route::get('/biaya/tambahBiaya', [ExpensesController::class,'addExpenses'])->name('tambahBiaya');
     Route::post('/biaya/simpanBiaya', [ExpensesController::class,'storeExpenses'])->name('simpanBiaya');
     Route::get('/biaya/editBiaya/{id}', [ExpensesController::class,'editExpenses'])->name('editBiaya');
     Route::put('/biaya/updateBiaya', [ExpensesController::class,'updateExpenses'])->name('updateBiaya');
     Route::get('/biaya/hapusBiaya/{id}', [ExpensesController::class, 'deleteExpenses'])->name('hapusBiaya');
-
-    Route::get('/penjualan/autocomplete-search', [SellsController::class,'autocomplete'])->name('autocomplete');
 
     Route::get('/user', [App\Http\Controllers\Auth\RegisteredUserController::class,'show'])->name('user');
     Route::get('/user/tambahUser', [App\Http\Controllers\Auth\RegisteredUserController::class,'create'])->name('tambahUser');
@@ -73,10 +75,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/searchUser', [App\Http\Controllers\Auth\RegisteredUserController::class, 'searchUser'])->name('searchUser');
 
     Route::get('/laporan', [ReportController::class,'show'])->name('laporanKeuangan');
+    Route::get('/laporan/cetakpdf', [ReportController::class,'cetakPdf'])->name('cetakPdf');
+    Route::get('/laporan/cetakpdffilter', [ReportController::class,'cetakPdfFiltered'])->name('cetakPdfFiltered');
 
-    Route::get('/penjualan/filterPenjualan', [SellsController::class, 'sellsReport'])->name('filterPenjualan');
     Route::get('/biaya/filterBiaya', [ExpensesController::class, 'expensesReport'])->name('filterBiaya');
-    Route::get('/laporan/filterBiaya', [ReportController::class, 'reportReport'])->name('filterLaporan');
+    Route::get('/laporan/filterLaporan', [ReportController::class, 'reportReport'])->name('filterLaporan');
+       });
+
+    
 
 });
 

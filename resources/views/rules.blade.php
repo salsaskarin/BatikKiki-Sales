@@ -35,8 +35,8 @@
                     <small class="font-semibold text-gray-600 leading-tight" >Data akun seperti email dan kata sandi tidak boleh diketahui oleh orang lain. Jika kata sandi telah bocor, ubah kata sandi anda pada menu "Profil" pada navigation bar</small><br>
 
                     <h5 class="font-semibold text-gray-800 leading-tight mt-4" >5. Lupa kata sandi.</h5>
-                    <small class="font-semibold text-gray-600 leading-tight" >Jika anda lupa kata sandi, klik tombol "Lupa kata sandi" pada halaman login, atau hubungi pihak admin untuk ditindak lanjut</small><br>
-                
+                    <small class="font-semibold text-gray-600 leading-tight" >Jika anda lupa kata sandi, klik tombol "Lupa kata sandi" pada halaman login, lalu memasukkan email aktif anda dan cek inbox email untuk reset password</small><br>
+                    <small class="font-semibold text-gray-600 leading-tight" >Jika anda tidak memiliki email aktif, hubungi pihak admin untuk ditindak lanjut</small><br>
                 
                 </div>
             </div>

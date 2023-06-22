@@ -33,7 +33,7 @@
                     <h6 class="text-gray-800 leading-tight mt-1">{!! nl2br(e($product->details)) !!}</h6>
                     </div>
                 </div>
-                    
+                    <small class="text-gray-500">Update terakhir : {{$product->updated_at}}</small>
                             @endforeach
                 </div>
             </div>

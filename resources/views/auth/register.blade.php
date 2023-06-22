@@ -65,8 +65,8 @@
             <x-input-label for="gender" :value="__('Jenis Kelamin')" />
             <div class="col-md-3 col-sm-12 block mt-1 w-full">
             <select name="gender" class="form-control" id="gender" value="{{old('gender')}}">
-                                <option value="0">Laki-Laki</option>
-                                <option value="1" >Perempuan</option>
+                                <option value="L">Laki-Laki</option>
+                                <option value="P" >Perempuan</option>
                             </select>
             </div>
             <x-input-error :messages="$errors->get('gender')" class="mt-2" />

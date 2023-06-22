@@ -17,16 +17,20 @@
                 <div class="p-6 text-gray-900">
                 <div class="row justify-content-between">
                     <div class="col-3">
-                        
+                    @if(Route::is('laporanKeuangan'))
+                     <a href="/laporan/cetakpdf" class="btn btn-outline-primary mb-4">Cetak Pdf</a>
+                    @else    
+                        <a href="/laporan/cetakpdffilter?start_date={{app('request')->input('start_date')}}&end_date={{app('request')->input('end_date')}}" class="btn btn-outline-primary mb-4">Cetak PDF</a>
+                    @endif
                     </div>
                     <div class="col-6">
                     <form action="{{ route('filterLaporan') }}" method="GET">
                         <small class="font-semibold text-gray-800 leading-tight">Filter tanggal laporan keuangan : </small>
                         <div class="input-group mt-1 mb-4">
-                            <small class="font-semibold text-gray-800 mt-2 mr-2 leading-tight">Dari : </small>
+                            <small class="font-semibold text-gray-800 mt-2 mr-2 leading-tight">Dari :  </small>
                             <input type="date" class="form-control" placeholder="Dari" name="start_date" required>
                             <small class="font-semibold text-gray-800 mt-2 ml-2 mr-2 leading-tight">Sampai : </small>
-                            <input type="date" class="form-control" placeholder="Sampai" name="end_date">
+                            <input type="date" class="form-control" placeholder="Sampai" name="end_date" value="{{$now}}">
                             <button class="btn btn-outline-secondary" type="submit">Cari</button>
                             <a class="btn btn-outline-danger" href="/laporan">Reset filter</a>
                         </div>
@@ -50,11 +54,11 @@
                                 $tmasuk = 0;
                                 $tkeluar = 0;
                                 @endphp
-                                @foreach ($data as $key => $data)
+                                @foreach ($data as $key => $dt)
                                 
                                 @php
-                                    $tmasuk += $data->pemasukan;
-                                $tkeluar += $data->pengeluaran;
+                                    $tmasuk += $dt->pemasukan;
+                                $tkeluar += $dt->pengeluaran;
                                 @endphp
                                 @if($loop->last)
                                         <tr class=" border-black border-top border-start border-end">
@@ -62,10 +66,10 @@
                                     <tr>
                                     @endif
                                         <th class="border-end border-black">{{++$key}}</th>
-                                        <th>{{$data->date}}</th>
-                                        <th>{{$data->type}}</th>
-                                        <th>Rp{{number_format($data->pemasukan,0,'','.')}}</th>
-                                        <th class="border-start border-black">Rp{{number_format($data->pengeluaran,0,'','.')}}</th>
+                                        <th>{{date(" d F Y",strtotime($dt->date))}}</th>
+                                        <th>{{$dt->type}}</th>
+                                        <th>Rp{{number_format($dt->pemasukan,0,'','.')}}</th>
+                                        <th class="border-start border-black">Rp{{number_format($dt->pengeluaran,0,'','.')}}</th>
                                     </tr>
                                 @endforeach
                                 <tr class=" border-black">
@@ -84,6 +88,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            {!! $data->withQueryString()->links('pagination::bootstrap-5') !!}
                             </div>
                             <!-- Option 1: Bootstrap Bundle with Popper -->
                         </div>

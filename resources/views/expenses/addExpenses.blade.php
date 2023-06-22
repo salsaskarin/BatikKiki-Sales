@@ -24,7 +24,7 @@
             <p class="mt-1 text-sm text-gray-600">
             {{ __("(Wajib diisi)") }}
             </p>
-            <x-text-input id="date" class="col-md-3 col-sm-12 block mt-1 w-full" type="date" name="date" :value="old('date')" />
+            <x-text-input id="date" class="col-md-3 col-sm-12 block mt-1 w-full" type="date" name="date" :value="old('date', date('Y-m-d'))" />
             <x-input-error :messages="$errors->get('date')" class="mt-2" />
         </div>
 
@@ -56,6 +56,9 @@
 
         <!-- Price -->
         <x-input-label for="price" :value="__('Harga')" class="mt-4"/>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __("(Wajib diisi)") }}
+        </p>
         <div class=" col-md-3 col-sm-12">
             <div class="input-group col-md-3 col-sm-12">
                 <span class="input-group-text" id="basic-addon1">Rp.</span>

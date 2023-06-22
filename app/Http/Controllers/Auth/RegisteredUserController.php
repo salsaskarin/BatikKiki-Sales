@@ -51,7 +51,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:50'],
-            'email' => ['required', 'string', 'email', 'max:50', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:50'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'address' => 'required|max:255',
             'phone' => 'required|digits_between:11,14',
@@ -98,7 +98,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:50', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:50'],
             'address' => 'required|max:255',
             'phone' => 'required|numeric',
             'birth' => 'required',
