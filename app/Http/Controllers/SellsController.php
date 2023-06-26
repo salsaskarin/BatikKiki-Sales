@@ -90,7 +90,7 @@ class SellsController extends Controller
             'p_name' => 'required|',
             'date' => 'required',
             'quantity' => 'required|gt:0|digits_between:1,10',
-            'price' => 'gt:0|digits_between:1,10',
+            'price' => 'max:10',
             'total' => 'required|gt:0|digits_between:1,10',
         ]);
 
@@ -156,7 +156,7 @@ class SellsController extends Controller
             'p_name' => 'required',
             'date' => 'required',
             'quantity' => 'required|gt:0|digits_between:1,10',
-            'price' => 'gt:0|digits_between:1,10',
+            'price' => 'max:10',
             'total' => 'required|gt:0|digits_between:1,10',
         ]);
 

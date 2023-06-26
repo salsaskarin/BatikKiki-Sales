@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('is_Admin')->nullable();
             $table->string('address', 255)->nullable();
             $table->string('phone', 14)->nullable();
-            $table->string('gender', 10)->nullable();
+            $table->string('gender', 2)->nullable();
             $table->date('birth')->nullable();
             $table->string('password');
             $table->rememberToken();

@@ -70,7 +70,7 @@ class ExpensesController extends Controller
             'name' => 'max:50',
             'date' => 'required',
             'quantity' => 'required|gt:0|digits_between:1,10',
-            'price' => 'gt:0|digits_between:1,10',
+            'price' => 'max:10',
             'pengeluaran' => 'required|gt:0|digits_between:1,10',
         ]);
 
@@ -101,9 +101,9 @@ class ExpensesController extends Controller
             'type' => 'required|max:50',
             'name' => 'max:50',
             'date' => 'required',
-            'quantity' => 'required|gt:0|max:10',
-            'price' => 'gt:0|max:10',
-            'pengeluaran' => 'required|gt:0|max:10',
+            'quantity' => 'required|gt:0|digits_between:1,10',
+            'price' => 'max:10',
+            'pengeluaran' => 'required|gt:0|digits_between:1,10',
         ]);
 
         Expenses::where('id',$request->id)->update([

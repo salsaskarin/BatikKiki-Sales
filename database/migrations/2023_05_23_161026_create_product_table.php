@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('size', 20)->nullable();
             $table->string('details');
-            $table->string('highest_price', 10);
-            $table->string('lowest_price', 10);
-            $table->string('stock', 10);
-            $table->string('image')->nullable();
+            $table->integer('highest_price');
+            $table->integer('lowest_price');
+            $table->integer('stock');
+            $table->string('image');
             $table->timestamps();
         });
     }

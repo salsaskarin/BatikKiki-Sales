@@ -70,7 +70,11 @@
                                         <th>{{$e->type}}</th>
                                         <th>{{$e->name}}</th>
                                         <th>{{$e->quantity}}</th>
+                                        @if($e->price==0)
+                                        <th></th>
+                                        @else
                                         <th>Rp{{number_format($e->price,0,'','.')}}</th>
+                                        @endif
                                         <th>Rp{{number_format($e->pengeluaran,0,'','.')}}</th>
                                         <th class="border-start border-black"><a href="/biaya/editBiaya/{{$e->id}}" class="btn btn-success btn-sm">Edit</a>
                                         <a href="/biaya/hapusBiaya/{{$e->id}}" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin akan menghapus data pengeluaran ini?');">Delete</a></th>

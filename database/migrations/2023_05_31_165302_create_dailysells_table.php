@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('type', 50);
             $table->date('date');
-            $table->string('pemasukan', 20);
-            $table->string('pengeluaran', 20);
+            $table->bigInteger('pemasukan');
+            $table->bigInteger('pengeluaran');
             $table->timestamps();
         });
     }

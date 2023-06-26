@@ -16,10 +16,10 @@ return new class extends Migration
             $table->date('date');
             $table->string('name', 100)->nullable();
             $table->string('type', 50);
-            $table->string('quantity', 10);
-            $table->string('price', 10)->nullable();
-            $table->string('pemasukan', 10);
-            $table->string('pengeluaran', 10);
+            $table->integer('quantity');
+            $table->integer('price')->nullable();
+            $table->integer('pemasukan');
+            $table->integer('pengeluaran');
             $table->timestamps();
         });
     }

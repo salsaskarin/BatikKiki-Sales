@@ -25,7 +25,7 @@
                                         <th>No</th>
                                         <th>Tanggal</th>
                                         <th>Deskripsi</th>
-                                        <th>Pemasukkan</th>
+                                        <th>Pemasukan</th>
                                         <th>Pengeluaran</th>
                                     </tr>
                                 </thead>
@@ -48,8 +48,13 @@
                                         <th class="border-end border-black">{{++$key}}</th>
                                         <th>{{$data->date}}</th>
                                         <th>{{$data->type}}</th>
-                                        <th>Rp{{number_format($data->pemasukan,0,'','.')}}</th>
+                                        @if($data->pemasukan=="0")
+                                        <th></th>
                                         <th class="border-start border-black">Rp{{number_format($data->pengeluaran,0,'','.')}}</th>
+                                        @else
+                                        <th>Rp{{number_format($data->pemasukan,0,'','.')}}</th>
+                                        <th></th>
+                                        @endif
                                     </tr>
                                 @endforeach
                                 <tr class=" border-black">

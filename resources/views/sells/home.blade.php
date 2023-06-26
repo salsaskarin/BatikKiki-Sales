@@ -74,7 +74,11 @@
                                         <th>{{$s->p_name}}</th>
                                         <th>{{$s->p_size}}</th>
                                         <th>{{$s->quantity}}</th>
+                                        @if($s->price==0)
+                                        <th></th>
+                                        @else
                                         <th>Rp{{number_format($s->price,0,'','.')}}</th>
+                                        @endif
                                         <th>Rp{{number_format($s->total,0,'','.')}}</th>
                                         <th class="border-start border-black"><a href="/penjualan/editPenjualan/{{$s->id}}" class="btn btn-success btn-sm">Edit</a>
                                         <a href="/penjualan/hapusPenjualan/{{$s->id}}" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin akan menghapus data penjualan ini?');">Delete</a></th>

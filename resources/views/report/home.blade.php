@@ -45,7 +45,7 @@
                                         <th>No</th>
                                         <th>Tanggal</th>
                                         <th>Deskripsi</th>
-                                        <th>Pemasukkan</th>
+                                        <th>Pemasukan</th>
                                         <th>Pengeluaran</th>
                                     </tr>
                                 </thead>
@@ -68,8 +68,13 @@
                                         <th class="border-end border-black">{{++$key}}</th>
                                         <th>{{date(" d F Y",strtotime($dt->date))}}</th>
                                         <th>{{$dt->type}}</th>
-                                        <th>Rp{{number_format($dt->pemasukan,0,'','.')}}</th>
+                                        @if($dt->pemasukan=="0")
+                                        <th></th>
                                         <th class="border-start border-black">Rp{{number_format($dt->pengeluaran,0,'','.')}}</th>
+                                        @else
+                                        <th>Rp{{number_format($dt->pemasukan,0,'','.')}}</th>
+                                        <th class="border-start border-black"></th>
+                                        @endif
                                     </tr>
                                 @endforeach
                                 <tr class=" border-black">
