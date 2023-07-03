@@ -47,8 +47,8 @@ class ExpensesController extends Controller
             }
             $expenses = Expenses::whereBetween('date',[$start_date,$end_date])
             ->orderBy('date')
-            ->select('expenses.*')
-            ->paginate();
+    ->select('expenses.*')
+    ->paginate();
 
         } else {
             $expenses = Expenses::latest()->get();

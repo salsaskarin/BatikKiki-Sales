@@ -59,7 +59,7 @@ class ProductController extends Controller
             'details' => 'required|max:255',
             'highest_price' => 'required|gt:0|digits_between:1,10',
             'lowest_price' => 'required|gt:0|digits_between:1,10',
-            'image' => 'image|mimes:jpeg,png,jpg,svg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
         ]);
 
         if ($image = $request->file('image')) {
@@ -78,6 +78,7 @@ class ProductController extends Controller
             'lowest_price' => $request->lowest_price,
             'image' => $productImage,
         ]);
+        // dd($shop);
 
         return redirect()->to('/produk')
         ->with('success','Produk berhasil ditambahkan.');

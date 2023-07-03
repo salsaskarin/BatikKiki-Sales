@@ -46,14 +46,14 @@
                                     <tr>
                                     @endif
                                         <th class="border-end border-black">{{++$key}}</th>
-                                        <th>{{$data->date}}</th>
+                                        <th>{{date('d M Y',strtotime($data->date))}}</th>
                                         <th>{{$data->type}}</th>
                                         @if($data->pemasukan=="0")
                                         <th></th>
                                         <th class="border-start border-black">Rp{{number_format($data->pengeluaran,0,'','.')}}</th>
                                         @else
                                         <th>Rp{{number_format($data->pemasukan,0,'','.')}}</th>
-                                        <th></th>
+                                        <th class="border-start border-black"></th>
                                         @endif
                                     </tr>
                                 @endforeach

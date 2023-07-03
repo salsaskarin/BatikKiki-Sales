@@ -78,9 +78,6 @@
 
         <!-- Price -->
         <x-input-label for="price" :value="__('Harga')" class="mt-4"/>
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("(Wajib diisi)") }}
-        </p>
         <div class=" col-md-3 col-sm-12">
             <div class="input-group col-md-3 col-sm-12">
                 <span class="input-group-text" id="basic-addon1">Rp.</span>

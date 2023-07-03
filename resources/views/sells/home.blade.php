@@ -58,10 +58,10 @@
                                 $tmasuk = 0;
                                 @endphp
                                 @foreach ($sells as $key => $s)
-                                
                                 @php
                                     $tmasuk += $s->total;
                                 @endphp
+                                
                                     @if($loop->last)
                                         <tr class=" border-black border-top border-start border-end">
                                     @else
